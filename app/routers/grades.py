@@ -8,13 +8,13 @@ from app.db import get_db_connection
 router = APIRouter()
 
 
-@router.post("/upload-grades")
+@router.post("/upload-grades", status_code=201)
 def upload_grades(file: UploadFile = File(...)):
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Поддерживаются только файлы CSV.")
 
     # UploadFile.read() — асинхронный, используем file.file — синхронный BinaryIO.
-    csv_text = file.file.read().decode("utf-8")
+    csv_text = file.file.read().decode("utf-8-sig")  # Учитываем возможную BOM в начале файла
 
     if not csv_text.strip():
         raise HTTPException(status_code=400, detail="Файл пустой.")
