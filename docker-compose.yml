@@ -9,6 +9,22 @@ services:
       - "5434:5432"
     volumes:
       - db_data:/var/lib/postgresql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d grades_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/grades_db
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
